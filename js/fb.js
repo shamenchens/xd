@@ -20,7 +20,7 @@ $(document).ready(function() {
 
 function fb_init() {
   FB.init({
-    appId: FACEBOOK_APP_ID,
+    appId: 621968141165255,
     status     : true,
     xfbml      : true,
     version    : 'v1.0'
@@ -100,7 +100,18 @@ function render(entries) {
       });
     }
     if (entry.type === 'photo') {
-      ret += '<img src="https://graph.facebook.com/' + entry.object_id + '/picture" />';
+      /*var img = new Image();
+      img.crossOrigin = '';
+      img.src = 'https://graph.facebook.com/' + entry.object_id + '/picture';
+      img.onload = function onload() {
+        var colorThief = new ColorThief();
+        var color = colorThief.getColor(img);
+        img.style = 'background-color: rgb('+color[0]+', '+color[1]+', '+color[2]+');';
+      };*/
+      var src = 'https://graph.facebook.com/' + entry.object_id + '/picture';
+      var xxx = calculateColor(src);
+      console.log(xxx);
+      ret += '<img src="' + src + '" />';
     }
     ret += '</li>';
   })
