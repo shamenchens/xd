@@ -30,22 +30,26 @@
   function createCircle(k, max, width, height, padding) {
     var radius = max;
     var bestX, bestY;
-    var collision = false;
-    for (var i = 0; i < k && radius > 0; ++i) {
-      var x = Math.random() * width;
-      var y = Math.random() * height;
-      collision = false;
+    var collision = true;
+    var x, y;
+    for (var i = 0; i < k && radius > 0 && collision; ++i) {
+      for (var trials = 0; trials < 10 && collision; trials++) {
+        x = Math.random() * width;
+        y = Math.random() * height;
+        collision = false;
 
-      createdCircles.some(function(circle) {
-        var dx = circle.x - x;
-        var dy = circle.y - y;
-        var distanceSquare = dx * dx + dy * dy;
-        var twoRadius = radius + circle.radius + padding;
-        if (distanceSquare < (twoRadius * twoRadius)) {
-          collision = true;
-        }
-        return collision;
-      });
+        createdCircles.some(function(circle) {
+          var dx = circle.x - x;
+          var dy = circle.y - y;
+          var distanceSquare = dx * dx + dy * dy;
+          var twoRadius = radius + circle.radius + padding;
+          if (distanceSquare < (twoRadius * twoRadius)) {
+            collision = true;
+          }
+          return collision;
+        });
+      }
+
       if (collision) {
         radius -= 2;
       } else {
@@ -80,7 +84,7 @@
     return fontSize;
   }
 
-  function createFriendCircle(container, f, width, height, maxValue, listener) {
+  function createFriendCircle(container, f, width, height, listener) {
     var defRadius = STANDARD_SIZE / 2;
     var circle = createCircle(50, defRadius, width, height, 1);
 
@@ -171,15 +175,8 @@
   }
 
   window.showFriendList = function(friends, listener) {
-    var totalValue = 0;
-    var maxValue = 0;
-    friends = friends.splice(0, 100);
-    friends.forEach(function(p) {
-      p.value = p.mutual_friend_count + 1;
-      totalValue += p.value;
-      maxValue = (maxValue < p.value) ? p.value : maxValue;
-    });
     var container = $('#friendlist');
+    friends = friends.splice(0, 100);
     container.html('');
     createdCircles = [];
 
@@ -198,7 +195,7 @@
     var friendCount = friends.length;
     d3.timer(function() {
       var f = friends[friends.length - friendCount];
-      createFriendCircle($(circleContainer), f, width, height, maxValue, listener);
+      createFriendCircle($(circleContainer), f, width, height, listener);
       return !(--friendCount);
     });
   };
