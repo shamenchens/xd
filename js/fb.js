@@ -145,7 +145,8 @@ function fb_init() {
       var accessToken = response.authResponse.accessToken;
       console.log('login!!!' + response.authResponse.userID);
       userInfo();
-      getMyFriend()
+      // We don't need to call getMyFriend(), because switchElement will do that
+      // for us.
       switchElement($('#fblogin'), 'off');
       // switchElement($('#getBT'), 'on');
     } else if (response.status === 'not_authorized') {
