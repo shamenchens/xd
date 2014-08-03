@@ -235,6 +235,7 @@ function findFriendCircle() {
 }
 
 function displayFeedSection(id, name) {
+  console.log('displayFeedSection: ' ,name)
   moveCube(cubePos, $('#cube-wordcloud'), 0.3, $('#cube-outer'));
 
   var canvas = $('#wc-canvas-canvas');
@@ -251,6 +252,10 @@ function displayFeedSection(id, name) {
   } else  {
     xdinfo.restart(xdRegexes);
   }
+}
+
+function displayImageSection(id, name) {
+  getUserImage(id);
 }
 
 function switchElement(ele, operate) {
@@ -347,6 +352,25 @@ function getUserFeed(id) {
     );
 }
 
+function getUserImage(id) {
+  console.log('getUserImage');
+  if (id == null) {
+    id = UserID;
+  }
+  FB.api(
+      "/" + id + "/photos/uploaded", {limit: 50},
+      function(response) {
+        if (response && !response.error) {
+          var imageEntries = [];
+          response.data.forEach(function(entry) {
+            imageEntries.push(entry.source);
+          });
+          showImageResult(imageEntries);
+        }
+      }
+    );
+}
+
 function getMyFriend() {
   var fql = 'SELECT uid, name, mutual_friend_count FROM user WHERE' +
             '   uid IN (SELECT uid2 FROM friend WHERE uid1 = me())' +
@@ -356,6 +380,7 @@ function getMyFriend() {
       if (response && !response.error) {
         showFriendList(response.data, function(id, name) {
           displayFeedSection(id, name);
+          displayImageSection(id, name);
         });
       }
     }
@@ -594,6 +619,26 @@ function showResult(entries, searchText) {
   setTimeout(animationCircleScore, 1000);
 
   $('#back-to-friendWrapper').removeAttr('style');
+}
+
+function showImageResult(entries) {
+  entries.forEach(function(url) {
+    var image = new Image();
+    var stealColor = function(image, url) {
+      var colorThief = new ColorThief();
+      var rgb = colorThief.getColor(image);
+      var closeColor = colorDiff.closest(
+        {R: rgb[0], G: rgb[1], B: rgb[2]}, colorPalette);
+      var result = '<li style="background-color:rgb(' + closeColor + ')">' +
+        '<image src="' + url + '" crossOrigin=""/></li>';
+      $('#image_wrap').append(result);
+    };
+    image.src = url;
+    image.crossOrigin = 'anonymous';
+    image.onload = function() {
+      stealColor(this, url);
+    };
+  });
 }
 
 function animationCircleScore() {
